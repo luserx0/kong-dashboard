@@ -70,6 +70,7 @@ describe('Service Creation testing', () => {
         delete service.created_at
         delete service.updated_at
         delete service.id
+        delete service.tags  // Kong 1.1.x will return tags:null
         expect(service).toEqual(data.expectedCreatedService);
         done();
       })
