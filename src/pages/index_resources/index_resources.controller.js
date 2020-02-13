@@ -5,9 +5,9 @@
     .module('app')
     .controller('IndexResources', IndexResources);
 
-  IndexResources.$inject = ["resourceType", "resourceName", "Kong", "Alert", "parentType", "parent"];
+  IndexResources.$inject = ["resourceType", "resourceName", "Kong", "env", "Alert", "parentType", "parent"];
 
-  function IndexResources(resourceType, resourceName, Kong, Alert, parentType, parent) {
+  function IndexResources(resourceType, resourceName, Kong, env, Alert, parentType, parent) {
     var vm = this;
 
     vm.resources = null;
@@ -156,8 +156,13 @@
         nextPage = response.offset ? fetchEndpoint + '&offset=' + encodeURIComponent(response.offset) : null;
         nextPageLoading = false;
 
+        var isTimestampInSeconds = env.kong_version >= "0.14";
+
         // appending related resources, if any.
         vm.resources.forEach(function(resource) {
+          if (isTimestampInSeconds && resource.created_at) {
+            resource.created_at *= 1000;
+          }
           if (!resource.api && resource.api_id) {
             Kong.get('/apis/' + resource.api_id).then(function(api) {
               resource.api = api;
